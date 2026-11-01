@@ -27,7 +27,7 @@ jobs:
             const run = context.payload.workflow_run;
             const checkedAt = run.run_started_at;
             if (!Number.isFinite(Date.parse(checkedAt))) throw new Error('Missing check time');
-            const file = 'api/status-live.json';
+            const file = 'status-live.json';
             if (fs.existsSync(file) && Date.parse(JSON.parse(fs.readFileSync(file, 'utf8')).checkedAt) >= Date.parse(checkedAt)) return;
             const services = ['website', 'blog', 'trip-data', 'ai-connections'].map(slug => {
               const text = fs.readFileSync(`history/${slug}.yml`, 'utf8');
@@ -40,14 +40,13 @@ jobs:
               const result = await github.rest.issues.listForRepo({...context.repo, state: 'all', labels: 'status', per_page: 100});
               incidents = result.data.filter(item => !item.pull_request).map(({title, html_url, created_at, state}) => ({title, html_url, created_at, state}));
             } catch (error) { core.warning('Incident snapshot unavailable; availability results will still be saved.'); }
-            fs.mkdirSync('api', {recursive: true});
             fs.writeFileSync(file, JSON.stringify({checkedAt, conclusion: 'success', runId: run.id, services, incidents}, null, 2) + '\n');
             core.setOutput('saved', 'true');
       - name: Commit snapshot
         run: |
           git config user.name 'Wanderlist Status Bot'
           git config user.email '263143528+m2007b@users.noreply.github.com'
-          git add api/status-live.json
+          git add status-live.json
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'Save monitoring snapshot [skip ci]'
           git push origin HEAD:master
