@@ -446,7 +446,7 @@ async function load() {
       // Read the public snapshot saved after Uptime CI, without visitor API calls.
       let incidents = null;
       try {
-        const live = await getJson(`${RAW}/api/status-live.json`);
+        const live = await getJson(`${RAW}/status-live.json`);
         const checkedAt = Date.parse(live.checkedAt);
         if (live.conclusion === 'success' && Number.isFinite(checkedAt) && checkedAt <= Date.now() + 60000) {
           services.forEach(service => {
