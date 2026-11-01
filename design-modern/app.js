@@ -171,21 +171,22 @@ async function load() {
         const read = key => text.split(/\r?\n/).find(line => line.startsWith(key + ':'))?.slice(key.length + 1).trim().replace(/^["']|["']$/g, '');
         service.startTime = read('startTime'); service.lastUpdated = read('lastUpdated'); service.currentStatus = read('status');
       });
-      // Uptime CI only commits history when a service changes status. A recent
-      // successful run confirms unchanged states without rewriting those files.
+      // Read the public snapshot saved after Uptime CI, without visitor API calls.
+      let incidents = null;
       try {
-        const runs = await getJson(`https://api.github.com/repos/${REPOSITORY}/actions/workflows/uptime.yml/runs?status=completed&per_page=1`);
-        const run = runs.workflow_runs?.[0];
-        if (run?.conclusion === 'success') {
-          const started = Date.parse(run.run_started_at);
-          const finished = Date.parse(run.updated_at);
-          if (Number.isFinite(started) && Number.isFinite(finished) && finished >= started && finished <= Date.now() + 60000) {
-            services.forEach(service => { service.lastChecked = new Date(Math.max(Date.parse(service.lastUpdated) || 0, started)).toISOString(); });
-          }
+        const live = await getJson(`${RAW}/api/status-live.json`);
+        const checkedAt = Date.parse(live.checkedAt);
+        if (live.conclusion === 'success' && Number.isFinite(checkedAt) && checkedAt <= Date.now() + 60000) {
+          services.forEach(service => {
+            const checked = live.services?.find(item => item.slug === service.slug);
+            if (checked && ['up', 'down', 'degraded'].includes(checked.status) && checkedAt >= Date.parse(service.lastUpdated)) {
+              service.currentStatus = checked.status;
+              service.lastChecked = live.checkedAt;
+            }
+          });
+          incidents = Array.isArray(live.incidents) ? live.incidents : null;
         }
       } catch { /* Keep the conservative history-based freshness fallback. */ }
-      let incidents;
-      try { incidents = await getJson(`https://api.github.com/repos/${REPOSITORY}/issues?state=all&labels=status&per_page=100`); } catch { incidents = null; }
       data = { capturedAt: new Date().toISOString(), services, incidents };
     }
     if (!Array.isArray(data.services) || data.services.length !== 4) throw new Error('Incomplete monitoring data.');
