@@ -32,7 +32,7 @@ sites:
     __dangerous__body_down_if_regex_missing: '"issuer"\s*:\s*"https://www\.wanderlist\.net/?"'
 
 workflowSchedule:
-  uptime: "*/5 * * * *"
+  uptime: "2-57/5 * * * *"
   responseTime: "17 * * * *"
   summary: "27 * * * *"
   graphs: "37 */6 * * *"
