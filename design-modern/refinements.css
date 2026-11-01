@@ -1,0 +1,75 @@
+/* Shared alignment and original Wanderlist brand assets. */
+:root { --shell-width: 1080px; --shell-gutter: 36px; }
+.topbar-inner, .page {
+  width: min(var(--shell-width), calc(100% - 2 * var(--shell-gutter)));
+  max-width: none;
+  margin-inline: auto;
+}
+.topbar { height: 86px; }
+.brand { gap: 8px; }
+.brand-mark { width: 60px; height: 60px; }
+.brand-word { height: 40px; width: auto; margin-left: -8px; transform: translateY(2px); }
+.brand-divider { margin-left: -6px; }
+.hero { padding-block: 55px 48px; }
+.hero h1 { font-size: 51px; letter-spacing: -.045em; }
+.hero-summary { padding-left: 38px; min-width: 215px; }
+.section-heading { margin-bottom: 18px; }
+.service { padding-top: 22px; padding-bottom: 14px; }
+.service-line { margin-bottom: 17px; }
+.service-numbers { margin-right: 30px; }
+.service-numbers .percentage { font-size: 14px; }
+.bars { height: 24px; }
+.bar.up { background: #5e9e84; }
+.health-panel { box-shadow: 0 4px 20px rgba(6,37,79,.018); }
+.service-details { margin-top: 8px; }
+.service-details summary { display: inline-flex; align-items: center; gap: 5px; }
+.service-details summary::before, .service-details summary::after,
+.incident-check::after { content: none; }
+.service-details summary .lucide { width: 11px; height: 11px; }
+.service-details[open] summary .lucide { transform: rotate(180deg); }
+.incident-check { font-size: initial; border: 0; background: #edf6f1; }
+.incident-check .lucide { width: 17px; height: 17px; color: #508c70; }
+.lucide { display: block; flex-shrink: 0; }
+[data-lucide] { display: inline-flex; align-items: center; justify-content: center; }
+.service-icon .lucide { width: 18px; height: 18px; stroke-width: 1.65; }
+.back-link .lucide { width: 15px; height: 15px; }
+.quiet-link, .help-line a { display: inline-flex; align-items: center; gap: 5px; }
+.quiet-link .lucide, .help-line .lucide { width: 12px; height: 12px; color: var(--coral); }
+.quiet-link span, .help-line a span { margin-left: 0; }
+.icon-button .lucide, .month-heading .lucide { width: 16px; height: 16px; }
+.dialog-heading button { font-size: initial; }
+.month-heading button { display: inline-flex; padding: 5px; }
+.metric strong { font-size: 25px; }
+.metric { padding-inline: 28px; }
+.footer { padding-top: 23px; }
+@media (min-width: 1600px) { :root { --shell-width: 1160px; } }
+@media (max-width: 800px) {
+  :root { --shell-gutter: 25px; }
+  .topbar { height: 78px; }
+  .hero { padding-block: 42px; }
+  .hero h1 { font-size: 41px; }
+  .hero-summary { min-width: 158px; padding-left: 24px; }
+  .service-numbers { margin-right: 12px; }
+  .metric { padding-inline: 20px; }
+  .metric strong { font-size: 23px; }
+}
+@media (max-width: 560px) {
+  :root { --shell-gutter: 20px; }
+  .topbar { height: 72px; }
+  .topbar-inner { gap: 10px; }
+  .brand-mark { width: 42px; height: 42px; }
+  .brand-word { height: 30px; margin-left: -8px; }
+  .brand-section { margin-left: -4px; }
+  .hero { padding-block: 32px; }
+  .hero h1 { font-size: 33px; }
+  .hero-summary { min-width: 88px; padding-left: 16px; }
+  .back-link .lucide { width: 17px; height: 17px; }
+  .service { padding-block: 19px 14px; }
+  .service-line { margin-bottom: 16px; }
+  .service-icon .lucide { width: 16px; height: 16px; }
+  .service-numbers { margin-right: 0; }
+  .service-numbers .percentage { font-size: 12px; }
+  .service-details summary .lucide { width: 10px; height: 10px; }
+  .metric { padding-inline: 10px; }
+  .metric strong { font-size: 20px; }
+}

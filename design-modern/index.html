@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>System status · Wanderlist</title><meta name="theme-color" content="#06254f">
+  <link rel="icon" href="favicon.png"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="refinements.css"><script type="module" src="app.js"></script>
+</head>
+<body>
+  <header class="topbar"><div class="topbar-inner"><a class="brand" href="https://www.wanderlist.net" aria-label="Wanderlist home"><img class="brand-mark" src="brand-mark.svg" alt="" width="60" height="60"><img class="brand-word" src="brand-word.svg" alt="Wanderlist" width="120" height="40"></a><span class="brand-divider"></span><span class="brand-section">System status</span><a class="back-link" href="https://www.wanderlist.net">Back to Wanderlist <span data-lucide="arrow-right"></span></a></div></header>
+  <main class="page">
+    <section class="overall hero" aria-live="polite" aria-atomic="true">
+      <div class="hero-copy"><div class="health-pill"><span class="beacon"></span><span id="health-label">Checking service health</span></div><h1 id="overall-label">A moment of clarity.</h1><p id="hero-description">Checking the services behind your next adventure.</p></div>
+      <div class="hero-summary"><div class="hero-count" id="online-count">—<span>/ 4</span></div><p>services operational</p><div class="service-signals" aria-hidden="true"><i></i><i></i><i></i><i></i></div><p class="updated" id="updated">Retrieving latest checks…</p></div>
+    </section>
+
+    <section class="health-section" aria-labelledby="uptime-title"><div class="section-heading"><div><h2 id="uptime-title">Service health<span class="service-count">4 services</span></h2><p>Every connection that keeps your plans moving.</p></div><div class="heading-actions"><div class="segmented" role="group" aria-label="History period"><button data-days="7" aria-pressed="false">7 days</button><button data-days="30" aria-pressed="false">30 days</button><button data-days="90" aria-pressed="true">90 days</button></div><button class="icon-button" id="open-calendar" aria-label="Open uptime calendar" title="Uptime calendar"><span data-lucide="calendar-days"></span></button></div></div>
+      <div class="health-panel"><div class="panel-heading"><div class="view-tabs" role="group" aria-label="Chart view"><button data-view="uptime" aria-pressed="true">Uptime history</button><button data-view="performance" aria-pressed="false">Response times</button></div><span class="utc-label">All times in UTC</span></div><div id="services" class="services"><p class="empty">Loading service measurements…</p></div><div class="panel-footer"><span><i class="legend"></i> No recorded data</span><span id="range-label">Past 90 days</span></div></div>
+      <span id="range-start" hidden></span>
+    </section>
+
+    <section class="metrics-section" aria-labelledby="metrics-title"><div class="section-heading slim"><h2 id="metrics-title">Uptime overview</h2><span class="subtle">Average across services</span></div><div class="metrics" id="metrics"></div><p class="measurement-note" id="measurement-note"></p></section>
+
+    <section class="updates-section" aria-labelledby="updates-title"><div class="section-heading slim"><h2 id="updates-title">Incident journal</h2><a class="quiet-link" href="https://github.com/m2007b/wanderlist-status/issues?q=is%3Aissue+label%3Astatus">View history <span data-lucide="arrow-up-right"></span></a></div><div class="updates" id="updates"><p class="empty">Loading updates…</p></div></section>
+
+    <aside class="help-line"><span>Something not working as expected?</span><a href="https://www.wanderlist.net/contact">Let’s sort it out <span data-lucide="arrow-up-right"></span></a></aside>
+    <footer class="footer"><span class="footer-signature"><span class="footer-dot"></span> Wanderlist service status</span><div><a href="https://www.wanderlist.net/privacy">Privacy</a><a href="https://www.wanderlist.net/terms">Terms</a><a href="https://www.wanderlist.net">Wanderlist © 2026</a></div></footer>
+    <p class="preview-note" id="preview-note" hidden>Design preview · captured monitoring data · not published</p>
+  </main>
+  <dialog id="calendar"><div class="dialog-heading"><div><span class="eyebrow">A CLOSER LOOK</span><h2>Uptime calendar</h2></div><button id="close-calendar" class="icon-button" aria-label="Close calendar"><span data-lucide="x"></span></button></div><label for="calendar-service">Service</label><select id="calendar-service"></select><div class="month-heading"><button id="previous-month" aria-label="Previous month"><span data-lucide="chevron-left"></span></button><h3 id="month-label"></h3><button id="next-month" aria-label="Next month"><span data-lucide="chevron-right"></span></button></div><div class="weekdays" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div><div id="calendar-days" class="calendar-grid"></div><p class="calendar-note">Grey dates have no recorded measurements. Dates use UTC.</p></dialog>
+</body></html>
