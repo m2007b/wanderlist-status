@@ -73,3 +73,68 @@
   .metric { padding-inline: 10px; }
   .metric strong { font-size: 20px; }
 }
+
+/* Match the public website scrollbar. */
+html{
+  scrollbar-width:thin;
+  scrollbar-color:rgba(6,37,79,.32) transparent;
+}
+
+*,
+*::before,
+*::after{
+  scrollbar-width:thin;
+  scrollbar-color:rgba(6,37,79,.32) transparent;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar{
+  width:2px !important;
+  height:2px !important;
+}
+
+html::-webkit-scrollbar-button,
+body::-webkit-scrollbar-button,
+*::-webkit-scrollbar-button{
+  width:0 !important;
+  height:0 !important;
+  display:none !important;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track{
+  background:transparent !important;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb{
+  background:rgba(6,37,79,.32) !important;
+  border:0 !important;
+  border-radius:999px !important;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:hover{
+  background:rgba(6,37,79,.48) !important;
+}
+
+a,
+button,
+input,
+textarea,
+select{
+  -webkit-tap-highlight-color:transparent;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible{
+  outline:none;
+  box-shadow:var(--focus-ring);
+}
