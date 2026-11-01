@@ -227,7 +227,7 @@ function element(tag, className, text) {
 }
 function referenceTime() { return PREVIEW ? Date.parse(data.capturedAt) : Date.now(); }
 function currentState(service) {
-  const stamp = Date.parse(service.lastUpdated);
+  const stamp = Date.parse(service.lastChecked || service.lastUpdated);
   if (!Number.isFinite(stamp) || referenceTime() - stamp > 20 * 60000 || stamp > referenceTime() + 60000) return 'unknown';
   return ['up', 'down', 'degraded'].includes(service.currentStatus) ? service.currentStatus : 'unknown';
 }
@@ -376,6 +376,19 @@ async function load() {
         const read = key => text.split(/\r?\n/).find(line => line.startsWith(key + ':'))?.slice(key.length + 1).trim().replace(/^["']|["']$/g, '');
         service.startTime = read('startTime'); service.lastUpdated = read('lastUpdated'); service.currentStatus = read('status');
       });
+      // Uptime CI only commits history when a service changes status. A recent
+      // successful run confirms unchanged states without rewriting those files.
+      try {
+        const runs = await getJson(`https://api.github.com/repos/${REPOSITORY}/actions/workflows/uptime.yml/runs?status=completed&per_page=1`);
+        const run = runs.workflow_runs?.[0];
+        if (run?.conclusion === 'success') {
+          const started = Date.parse(run.run_started_at);
+          const finished = Date.parse(run.updated_at);
+          if (Number.isFinite(started) && Number.isFinite(finished) && finished >= started && finished <= Date.now() + 60000) {
+            services.forEach(service => { service.lastChecked = new Date(Math.max(Date.parse(service.lastUpdated) || 0, started)).toISOString(); });
+          }
+        }
+      } catch { /* Keep the conservative history-based freshness fallback. */ }
       let incidents;
       try { incidents = await getJson(`https://api.github.com/repos/${REPOSITORY}/issues?state=all&labels=status&per_page=100`); } catch { incidents = null; }
       data = { capturedAt: new Date().toISOString(), services, incidents };
@@ -393,7 +406,7 @@ async function load() {
     $('#online-count').replaceChildren(document.createTextNode('—'), element('span', '', '/ 4'));
     document.querySelectorAll('.service-signals i').forEach(node=>{node.style.background='#c9cfd9';});
     $('#updated').textContent = 'Unable to retrieve the latest measurements';
-    if (data) { data.services.forEach(service => { service.lastUpdated = ''; }); renderServices(); }
+    if (data) { data.services.forEach(service => { service.lastUpdated = ''; service.lastChecked = ''; }); renderServices(); }
     else {
       $('#services').replaceChildren(element('p', 'empty', 'Please try again shortly. Current service availability is unconfirmed.'));
       $('#updates').replaceChildren(element('p', 'empty', 'Status updates could not be loaded.'));
@@ -402,7 +415,7 @@ async function load() {
 }
 function updateClock() {
   if (!data) return;
-  const oldest = Math.min(...data.services.map(service => Date.parse(service.lastUpdated)));
+  const oldest = Math.min(...data.services.map(service => Date.parse(service.lastChecked || service.lastUpdated)));
   if (!Number.isFinite(oldest)) return;
   const time = new Date(oldest).toLocaleTimeString('en', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
   $('#updated').textContent = PREVIEW ? `Snapshot · ${time}` : `Checked ${time} · refresh in ${Math.max(0, Math.ceil((nextRefresh - Date.now()) / 1000))}s`;
