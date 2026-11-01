@@ -13,8 +13,8 @@
 .history-tooltip[data-state="degraded"] .history-tooltip-status::before { background: #d5a35a; }
 .history-tooltip[data-state="down"] .history-tooltip-status::before { background: #dc7d8b; }
 .history-tooltip-note { display: block; margin-top: 8px; color: #778294; font-size: 9px; }
-.bar { cursor: pointer; }
-.bar:hover, .bar:focus-visible { outline: 2px solid #06254f; outline-offset: 2px; }
+.bar { position: relative; cursor: pointer; }
+.bar:hover, .bar:focus-visible { z-index: 1; outline: 2px solid #06254f; outline-offset: 2px; }
 :root { --shell-width: 1080px; --shell-gutter: 36px; }
 .topbar-inner, .page {
   width: min(var(--shell-width), calc(100% - 2 * var(--shell-gutter)));
