@@ -1,4 +1,20 @@
 /* Shared alignment and original Wanderlist brand assets. */
+.history-tooltip {
+  position: fixed; z-index: 1000; width: max-content; max-width: calc(100vw - 24px);
+  padding: 14px 17px; border: 1px solid #e4e9ef; border-radius: 12px;
+  background: #fff; color: #06254f; box-shadow: 0 8px 30px rgba(6,37,79,.1);
+  pointer-events: none; font-family: Poppins, sans-serif; text-align: left;
+}
+.history-tooltip[hidden] { display: none; }
+.history-tooltip-date { display: block; font-size: 12px; font-weight: 600; margin-bottom: 7px; }
+.history-tooltip-status { display: flex; align-items: center; gap: 7px; font-size: 11px; }
+.history-tooltip-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #b6bfcd; }
+.history-tooltip[data-state="up"] .history-tooltip-status::before { background: #5e9e84; }
+.history-tooltip[data-state="degraded"] .history-tooltip-status::before { background: #d5a35a; }
+.history-tooltip[data-state="down"] .history-tooltip-status::before { background: #dc7d8b; }
+.history-tooltip-note { display: block; margin-top: 8px; color: #778294; font-size: 9px; }
+.bar { cursor: pointer; }
+.bar:hover, .bar:focus-visible { outline: 2px solid #06254f; outline-offset: 2px; }
 :root { --shell-width: 1080px; --shell-gutter: 36px; }
 .topbar-inner, .page {
   width: min(var(--shell-width), calc(100% - 2 * var(--shell-gutter)));

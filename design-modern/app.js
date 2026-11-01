@@ -21,6 +21,35 @@ function element(tag, className, text) {
   return node;
 }
 function referenceTime() { return PREVIEW ? Date.parse(data.capturedAt) : Date.now(); }
+const historyTooltip = element('div', 'history-tooltip');
+historyTooltip.id = 'history-tooltip';
+historyTooltip.setAttribute('role', 'tooltip');
+historyTooltip.hidden = true;
+document.body.append(historyTooltip);
+let activeHistoryBar;
+function hideHistoryTooltip() {
+  activeHistoryBar?.removeAttribute('aria-describedby');
+  activeHistoryBar = null;
+  historyTooltip.hidden = true;
+}
+function showHistoryTooltip(bar) {
+  hideHistoryTooltip();
+  activeHistoryBar = bar;
+  historyTooltip.dataset.state = bar.dataset.state;
+  historyTooltip.replaceChildren(element('strong', 'history-tooltip-date', bar.dataset.dateLabel), element('span', 'history-tooltip-status', bar.dataset.statusLabel), element('span', 'history-tooltip-note', bar.dataset.note));
+  historyTooltip.hidden = false;
+  bar.setAttribute('aria-describedby', historyTooltip.id);
+  const anchor = bar.getBoundingClientRect();
+  const box = historyTooltip.getBoundingClientRect();
+  const left = Math.max(12, Math.min(innerWidth - box.width - 12, anchor.left + anchor.width / 2 - box.width / 2));
+  const top = anchor.top - box.height - 12 >= 12 ? anchor.top - box.height - 12 : anchor.bottom + 12;
+  historyTooltip.style.left = left + 'px';
+  historyTooltip.style.top = Math.max(12, Math.min(innerHeight - box.height - 12, top)) + 'px';
+}
+document.addEventListener('keydown', event => { if (event.key === 'Escape') hideHistoryTooltip(); });
+document.addEventListener('pointerdown', event => { if (!event.target.closest('.bar')) hideHistoryTooltip(); });
+window.addEventListener('scroll', hideHistoryTooltip, true);
+window.addEventListener('resize', hideHistoryTooltip);
 function currentState(service) {
   const stamp = Date.parse(service.lastChecked || service.lastUpdated);
   if (!Number.isFinite(stamp) || referenceTime() - stamp > 20 * 60000 || stamp > referenceTime() + 60000) return 'unknown';
@@ -63,6 +92,7 @@ function renderOverall() {
   document.querySelectorAll('.service-signals i').forEach((node,i)=>{node.style.background=states[i]==='up'?'#73b19b':states[i]==='down'?'#dc7d8b':'#c9cfd9';});
 }
 function renderServices() {
+  hideHistoryTooltip();
   const container = $('#services'); container.replaceChildren();
   $('#range-label').textContent = 'Past ' + range + ' days';
   $('#range-start').textContent = range + ' days ago';
@@ -84,9 +114,30 @@ function renderServices() {
     const badge=element('span','service-state '+state);badge.append(element('i'),document.createTextNode(stateLabel(state)));
     line.append(icon,copy,numbers,badge);row.append(line);
     if(view==='uptime'){
-      const bars=element('div','bars');bars.style.gridTemplateColumns='repeat('+range+',minmax(0,1fr))';bars.setAttribute('role','img');bars.setAttribute('aria-label',service.name+', '+range+' days of history. Grey indicates no data.');
+      const bars=element('div','bars');bars.style.gridTemplateColumns='repeat('+range+',minmax(0,1fr))';bars.setAttribute('role','group');bars.setAttribute('aria-label',service.name+', '+range+' days of history. Use arrow keys to explore dates.');
       const today=Date.parse(utcDay(referenceTime())+'T00:00:00Z');
-      for(let i=range-1;i>=0;i--){const date=utcDay(today-i*DAY);const state=dailyState(service,date);const bar=element('span','bar '+state);bar.title=date+' ? '+(state==='unknown'?'No confirmed data':state==='up'?'No downtime recorded':'Downtime recorded');bars.append(bar);}
+      for(let i=range-1;i>=0;i--){
+        const date=utcDay(today-i*DAY);const state=dailyState(service,date);const bar=element('span','bar '+state);
+        const minutes=Number(service.dailyMinutesDown?.[date] || 0);
+        const status=state==='unknown'?'No confirmed data':state==='up'?'No downtime recorded':state==='down'?'Service unavailable':'Partial downtime';
+        bar.dataset.state=state;bar.dataset.dateLabel=formatDate(date);bar.dataset.statusLabel=status;
+        bar.dataset.note=state==='unknown'?'No measurements available · UTC':minutes>0?`${minutes} min of recorded downtime · UTC`:'Daily monitoring history · UTC';
+        bar.tabIndex=i===0?0:-1;bar.setAttribute('role','button');bar.setAttribute('aria-label',`${formatDate(date)}: ${status}`);
+        bar.addEventListener('pointerenter',event=>{if(event.pointerType!=='touch')showHistoryTooltip(bar);});
+        bar.addEventListener('pointerleave',()=>{if(document.activeElement!==bar)hideHistoryTooltip();});
+        bar.addEventListener('focus',()=>showHistoryTooltip(bar));bar.addEventListener('blur',hideHistoryTooltip);
+        bar.addEventListener('click',()=>showHistoryTooltip(bar));
+        bar.addEventListener('keydown',event=>{
+          let next;
+          if(event.key==='ArrowLeft')next=bar.previousElementSibling;
+          else if(event.key==='ArrowRight')next=bar.nextElementSibling;
+          else if(event.key==='Home')next=bars.firstElementChild;
+          else if(event.key==='End')next=bars.lastElementChild;
+          else if(event.key==='Enter'||event.key===' '){event.preventDefault();showHistoryTooltip(bar);}
+          if(next){event.preventDefault();bars.querySelector('[tabindex="0"]')?.setAttribute('tabindex','-1');next.tabIndex=0;next.focus();}
+        });
+        bars.append(bar);
+      }
       const scale=element('div','history-scale');scale.append(element('span','',range+' days ago'),element('span','','Today'));
       row.append(bars,scale);
     }else{
