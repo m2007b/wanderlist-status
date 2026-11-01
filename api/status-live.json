@@ -1,0 +1,24 @@
+{
+  "checkedAt": "2026-11-01T11:03:57Z",
+  "conclusion": "success",
+  "runId": 41300206223,
+  "services": [
+    {
+      "slug": "website",
+      "status": "up"
+    },
+    {
+      "slug": "blog",
+      "status": "up"
+    },
+    {
+      "slug": "trip-data",
+      "status": "up"
+    },
+    {
+      "slug": "ai-connections",
+      "status": "up"
+    }
+  ],
+  "incidents": []
+}
