@@ -1,0 +1,12 @@
+{
+  "name": "wanderlist-status",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node scripts/check-config.mjs && node --test scripts/freshness.test.mjs",
+    "check:live": "node scripts/check-config.mjs --live"
+  },
+  "devDependencies": {
+    "js-yaml": "4.3.2"
+  }
+}

@@ -1,0 +1,54 @@
+:root {
+  color-scheme: light;
+  --body-background-color: #f5f7fb;
+  --body-text-color: #06254f;
+  --card-background-color: #fff;
+  --nav-background-color: #fff;
+  --nav-border-bottom-color: #e1e6ef;
+  --nav-current-border-bottom-color: #ff6048;
+  --card-border-color: #e1e6ef;
+  --down-border-left-color: #d82d43;
+  --down-background-color: #fff1f2;
+  --degraded-border-left-color: #b87200;
+  --up-border-left-color: #178556;
+  --tag-color: #fff;
+  --tag-up-background-color: #178556;
+  --tag-down-background-color: #d82d43;
+  --tag-degraded-background-color: #986000;
+  --change-background-color: #fff1d6;
+  --error-button-border-color: #06254f;
+  --error-button-background-color: #06254f;
+  --error-button-color: #fff;
+  --submit-button-border-color: #06254f;
+  --submit-button-background-color: #06254f;
+  --submit-button-color: #fff;
+  --graph-opacity: 1;
+  --graph-filter: none;
+}
+body { font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.65; }
+nav { box-shadow: 0 2px 14px #06254f06; }
+nav .container { min-height: 96px; }
+nav .logo img { width: 78px; height: 78px; object-fit: contain; }
+main.container { padding-top: 40px; padding-bottom: 40px; }
+h1 { letter-spacing: -.035em; line-height: 1.2; }
+h1 strong { color: #e84c36; }
+p.lead { max-width: 760px; color: #53637a; font-size: 1rem; }
+article { border-radius: 14px; box-shadow: 0 5px 20px #06254f05; }
+article.up { border-left-color: #178556; }
+article.link:hover { box-shadow: 0 8px 24px #06254f0d; }
+select, input, button { font: inherit; border-radius: 8px; }
+a { text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible {
+  outline: 3px solid #ff6048; outline-offset: 4px;
+}
+footer { color: #53637a; }
+.freshness { margin: 20px auto; padding: 14px 24px; border: 1px solid #d5deeb; border-radius: 12px; background: #fff; font-size: .9rem; }
+.freshness[data-state='fresh'] { border-color: #9acbb6; }
+.freshness[data-state='stale'], .freshness[data-state='unavailable'] { background: #fff8e8; border-color: #dfbd75; color: #714800; }
+.freshness[data-state='down'] { background: #fff1f2; border-color: #d82d43; color: #a21e30; }
+@media (max-width: 600px) {
+  nav .container { min-height: 76px; flex-wrap: wrap; }
+  nav .logo img { width: 58px; height: 58px; }
+  main.container { padding-top: 24px; }
+  h1 { font-size: 1.8rem; }
+}
