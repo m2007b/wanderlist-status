@@ -47,6 +47,22 @@
 .hero h1{animation:none}.incident-check{font-size:0;position:relative}.incident-check::after{content:"";width:5px;height:9px;border:solid #78a994;border-width:0 1.5px 1.5px 0;transform:rotate(45deg);margin-top:-2px}.bar{background:#e9edf2}.service-name{font-size:13px}.service-caption{font-size:10px;color:#7e8b9d}.service-details{color:#75849a}.history-scale{color:#8d99aa}.hero-copy>p{color:#69788c}.section-heading p{color:#7c8899}.hero-summary>p{color:#7b889b}.hero-summary p.updated{color:#8a96a7}.empty strong{color:#56677e}.empty span{color:#7f8b9c}
 @media(max-width:560px){.service-name{font-size:11px}.hero-copy>p{font-size:10px}.service-details{font-size:8px}.service-state{font-size:8px}}
 </style><style>/* Shared alignment and original Wanderlist brand assets. */
+.history-tooltip {
+  position: fixed; z-index: 1000; width: max-content; max-width: calc(100vw - 24px);
+  padding: 14px 17px; border: 1px solid #e4e9ef; border-radius: 12px;
+  background: #fff; color: #06254f; box-shadow: 0 8px 30px rgba(6,37,79,.1);
+  pointer-events: none; font-family: Poppins, sans-serif; text-align: left;
+}
+.history-tooltip[hidden] { display: none; }
+.history-tooltip-date { display: block; font-size: 12px; font-weight: 600; margin-bottom: 7px; }
+.history-tooltip-status { display: flex; align-items: center; gap: 7px; font-size: 11px; }
+.history-tooltip-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #b6bfcd; }
+.history-tooltip[data-state="up"] .history-tooltip-status::before { background: #5e9e84; }
+.history-tooltip[data-state="degraded"] .history-tooltip-status::before { background: #d5a35a; }
+.history-tooltip[data-state="down"] .history-tooltip-status::before { background: #dc7d8b; }
+.history-tooltip-note { display: block; margin-top: 8px; color: #778294; font-size: 9px; }
+.bar { cursor: pointer; }
+.bar:hover, .bar:focus-visible { outline: 2px solid #06254f; outline-offset: 2px; }
 :root { --shell-width: 1080px; --shell-gutter: 36px; }
 .topbar-inner, .page {
   width: min(var(--shell-width), calc(100% - 2 * var(--shell-gutter)));
@@ -226,6 +242,35 @@ function element(tag, className, text) {
   return node;
 }
 function referenceTime() { return PREVIEW ? Date.parse(data.capturedAt) : Date.now(); }
+const historyTooltip = element('div', 'history-tooltip');
+historyTooltip.id = 'history-tooltip';
+historyTooltip.setAttribute('role', 'tooltip');
+historyTooltip.hidden = true;
+document.body.append(historyTooltip);
+let activeHistoryBar;
+function hideHistoryTooltip() {
+  activeHistoryBar?.removeAttribute('aria-describedby');
+  activeHistoryBar = null;
+  historyTooltip.hidden = true;
+}
+function showHistoryTooltip(bar) {
+  hideHistoryTooltip();
+  activeHistoryBar = bar;
+  historyTooltip.dataset.state = bar.dataset.state;
+  historyTooltip.replaceChildren(element('strong', 'history-tooltip-date', bar.dataset.dateLabel), element('span', 'history-tooltip-status', bar.dataset.statusLabel), element('span', 'history-tooltip-note', bar.dataset.note));
+  historyTooltip.hidden = false;
+  bar.setAttribute('aria-describedby', historyTooltip.id);
+  const anchor = bar.getBoundingClientRect();
+  const box = historyTooltip.getBoundingClientRect();
+  const left = Math.max(12, Math.min(innerWidth - box.width - 12, anchor.left + anchor.width / 2 - box.width / 2));
+  const top = anchor.top - box.height - 12 >= 12 ? anchor.top - box.height - 12 : anchor.bottom + 12;
+  historyTooltip.style.left = left + 'px';
+  historyTooltip.style.top = Math.max(12, Math.min(innerHeight - box.height - 12, top)) + 'px';
+}
+document.addEventListener('keydown', event => { if (event.key === 'Escape') hideHistoryTooltip(); });
+document.addEventListener('pointerdown', event => { if (!event.target.closest('.bar')) hideHistoryTooltip(); });
+window.addEventListener('scroll', hideHistoryTooltip, true);
+window.addEventListener('resize', hideHistoryTooltip);
 function currentState(service) {
   const stamp = Date.parse(service.lastChecked || service.lastUpdated);
   if (!Number.isFinite(stamp) || referenceTime() - stamp > 20 * 60000 || stamp > referenceTime() + 60000) return 'unknown';
@@ -268,6 +313,7 @@ function renderOverall() {
   document.querySelectorAll('.service-signals i').forEach((node,i)=>{node.style.background=states[i]==='up'?'#73b19b':states[i]==='down'?'#dc7d8b':'#c9cfd9';});
 }
 function renderServices() {
+  hideHistoryTooltip();
   const container = $('#services'); container.replaceChildren();
   $('#range-label').textContent = 'Past ' + range + ' days';
   $('#range-start').textContent = range + ' days ago';
@@ -289,9 +335,30 @@ function renderServices() {
     const badge=element('span','service-state '+state);badge.append(element('i'),document.createTextNode(stateLabel(state)));
     line.append(icon,copy,numbers,badge);row.append(line);
     if(view==='uptime'){
-      const bars=element('div','bars');bars.style.gridTemplateColumns='repeat('+range+',minmax(0,1fr))';bars.setAttribute('role','img');bars.setAttribute('aria-label',service.name+', '+range+' days of history. Grey indicates no data.');
+      const bars=element('div','bars');bars.style.gridTemplateColumns='repeat('+range+',minmax(0,1fr))';bars.setAttribute('role','group');bars.setAttribute('aria-label',service.name+', '+range+' days of history. Use arrow keys to explore dates.');
       const today=Date.parse(utcDay(referenceTime())+'T00:00:00Z');
-      for(let i=range-1;i>=0;i--){const date=utcDay(today-i*DAY);const state=dailyState(service,date);const bar=element('span','bar '+state);bar.title=date+' ? '+(state==='unknown'?'No confirmed data':state==='up'?'No downtime recorded':'Downtime recorded');bars.append(bar);}
+      for(let i=range-1;i>=0;i--){
+        const date=utcDay(today-i*DAY);const state=dailyState(service,date);const bar=element('span','bar '+state);
+        const minutes=Number(service.dailyMinutesDown?.[date] || 0);
+        const status=state==='unknown'?'No confirmed data':state==='up'?'No downtime recorded':state==='down'?'Service unavailable':'Partial downtime';
+        bar.dataset.state=state;bar.dataset.dateLabel=formatDate(date);bar.dataset.statusLabel=status;
+        bar.dataset.note=state==='unknown'?'No measurements available · UTC':minutes>0?`${minutes} min of recorded downtime · UTC`:'Daily monitoring history · UTC';
+        bar.tabIndex=i===0?0:-1;bar.setAttribute('role','button');bar.setAttribute('aria-label',`${formatDate(date)}: ${status}`);
+        bar.addEventListener('pointerenter',event=>{if(event.pointerType!=='touch')showHistoryTooltip(bar);});
+        bar.addEventListener('pointerleave',()=>{if(document.activeElement!==bar)hideHistoryTooltip();});
+        bar.addEventListener('focus',()=>showHistoryTooltip(bar));bar.addEventListener('blur',hideHistoryTooltip);
+        bar.addEventListener('click',()=>showHistoryTooltip(bar));
+        bar.addEventListener('keydown',event=>{
+          let next;
+          if(event.key==='ArrowLeft')next=bar.previousElementSibling;
+          else if(event.key==='ArrowRight')next=bar.nextElementSibling;
+          else if(event.key==='Home')next=bars.firstElementChild;
+          else if(event.key==='End')next=bars.lastElementChild;
+          else if(event.key==='Enter'||event.key===' '){event.preventDefault();showHistoryTooltip(bar);}
+          if(next){event.preventDefault();bars.querySelector('[tabindex="0"]')?.setAttribute('tabindex','-1');next.tabIndex=0;next.focus();}
+        });
+        bars.append(bar);
+      }
       const scale=element('div','history-scale');scale.append(element('span','',range+' days ago'),element('span','','Today'));
       row.append(bars,scale);
     }else{
