@@ -42,17 +42,17 @@ workflowSchedule:
 
 status-website:
   cname: status.wanderlist.net
-  logoUrl: /wanderlist-logo.png
+  logoUrl: https://status.wanderlist.net/wanderlist-logo.png
   logoHref: https://www.wanderlist.net
-  favicon: /favicon.png
-  faviconSvg: /favicon.svg
+  favicon: https://status.wanderlist.net/favicon.png
+  faviconSvg: https://status.wanderlist.net/favicon.svg
   name: Wanderlist Service Status
-  customHeadHtml: '<script type="module" src="/monitor-freshness.js"></script>'
+  customHeadHtml: '<script type="module" src="https://status.wanderlist.net/monitor-freshness.js"></script>'
   customBodyHtml: '<aside id="wanderlist-freshness" class="container freshness" role="status" aria-live="polite">Checking when monitoring last ran…</aside>'
   theme: light
   links:
     - rel: stylesheet
-      href: /wanderlist-theme.css
+      href: https://status.wanderlist.net/wanderlist-theme.css
   introTitle: "A clear view of **Wanderlist’s services.**"
   introMessage: >-
     Check availability, response times, and incident updates below.
